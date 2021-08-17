@@ -1,0 +1,37 @@
+#Compile library files
+
+gcc -Wall -Wextra -O2 -I /usr/local/include -I ./ -std=c99 -pedantic -fPIC base64.c -c 
+
+#Create library
+
+ar cru wslib.a *.o
+
+#compile websocket library
+
+gcc -lchibi-scheme -pthread -Wall -Wextra -O2 -I /usr/local/include -I ./include/ -std=c99 -pedantic -fPIC \
+    -shared chibized-websocket.c wslib.a -o websocket.so
+
+#Compile socket & link with libws
+
+gcc -lchibi-scheme -pthread -Wall -Wextra -O2 -I /usr/local/include -I ./include/ -std=c99 -pedantic chibized-socket.c -o socket
+
+
+
+#####################################################
+
+
+gcc -lchibi-scheme -pthread -Wall -Wextra -O2 -I /usr/local/include -I ./include/ -std=c99 -pedantic -fPIC \
+    -shared chibized-websocket.c libws.a -o websocket.so
+
+
+link w/ wslib.a
+
+gcc -Iinclude/ -I./include/  -L. -lchibi-scheme -lm  -l:wslib.a socket.c -o socket
+
+link w/ object files
+gcc -Iinclude/ -I./include/  -L. -pthread -lchibi-scheme -lm  base64.o handshake.o sha1.o utf8.o ws.o socket.c -o socket
+
+link with other c programs
+gcc -Wall -Wextra -O2 -std=c99 -pedantic -Iinclude/ -I./include/ -L. -pthread -lchibi-scheme -lm  base64.c handshake.c sha1.c utf8.c ws.c socket.c -o socket
+
+gcc -Iinclude/ -I./include/  -L. -pthread -lchibi-scheme -lm  obj/base64.o obj/handshake.o obj/sha1.o obj/utf8.o obj/ws.o socket.c -o socket

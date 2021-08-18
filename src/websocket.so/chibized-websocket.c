@@ -8,7 +8,7 @@
 #include "unistd.h"
 #include "ws.h"
 
-sexp ctx2;
+static sexp ctx2;
 
  void onopen(int fd)
  { 
@@ -22,7 +22,7 @@ sexp ctx2;
 
 void onclose(int fd)
 {
-   sexp ctx = ctx2;
+  sexp ctx = ctx2;
   sexp_gc_var1(cmd); 
   sexp_gc_preserve1(ctx,cmd);
   cmd = sexp_list2(ctx, sexp_intern(ctx, "onclose", -1),sexp_make_integer(ctx, fd));
@@ -32,7 +32,7 @@ void onclose(int fd)
 
 void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
 {  
-   sexp ctx = ctx2;
+  sexp ctx = ctx2;
   sexp_gc_var1(cmd); 
   sexp_gc_preserve1(ctx,cmd);
   cmd = sexp_list3(ctx,sexp_c_string(ctx, msg, -1),
@@ -43,16 +43,25 @@ void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
   sexp_gc_release1(ctx);   
 }
 
-int ws_start(void){
-  sexp ctx = ctx2;
-  setbuf(stdout, NULL); 
+void init(void)
+{ 
   sexp ctx = ctx2;
   struct ws_events evs;
   evs.onopen    = &onopen;
   evs.onclose   = &onclose;
   evs.onmessage = &onmessage;
-  ws_socket(&evs, 8080, 1); /* Never returns. */
-  printf("Server Initialized!\n");  	 
+  ws_socket(&evs, 8080, 1); 
+  sleep(1000);
+  printf("Server Initialized!\n");  	
+}
+
+int ws_start(void){
+ sexp ctx = ctx2;
+// sexp_scheme_init();
+// sexp_load_standard_env(ctx, NULL, SEXP_SEVEN);
+// sexp_load_standard_ports(ctx, NULL, stdin, stdout, stderr, 1);
+ setbuf(stdout, NULL); 
+ init();    
 }
  
 sexp sexp_ws_socket_stub (sexp ctx, sexp self, sexp_sint_t n, sexp arg0, sexp arg1, sexp arg2) {
@@ -133,9 +142,11 @@ sexp sexp_init_library (sexp ctx, sexp self, sexp_sint_t n, sexp env, const char
   if (sexp_opcodep(op)) {
     sexp_opcode_return_type(op) = sexp_make_fixnum(SEXP_FIXNUM);
   }
-  sexp_gc_release3(ctx);
+ sexp_gc_release3(ctx);
+ ctx2 = ctx;  
+ sexp_preserve_object(ctx, ctx2);
+
   
-  ctx2 = ctx;  
   return SEXP_VOID;
 }
 

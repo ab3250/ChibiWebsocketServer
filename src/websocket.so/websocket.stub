@@ -10,20 +10,20 @@
 
 (define-c int ws_start())
 
-;(define-c int ws_sendframe(int (const string) unsigned-long bool int))
+(define-c int ws_sendframe(int (const string) unsigned-long bool int))
 
 (define-c int ws_sendframe_txt(int (const string) bool))
 
 (define-c int ws_sendframe_bin(int (const string)  unsigned-long bool))
 
 ;int ws_close_client(int fd)
-;(define-c int ws_close_client(int))
+(define-c int ws_close_client(int))
 
 ;char *ws_getaddress(int fd)
-;(define-c string ws_getaddress(int))
+(define-c string ws_getaddress(int))
 
 ;int ws_get_state(int fd)
-;(define-c int ws_get_state(int))
+(define-c int ws_get_state(int))
 
 ;int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
 (define-c int ws_socket(sexp int int))

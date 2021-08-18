@@ -10,68 +10,60 @@
 
 static sexp ctx2;
 
- void onopen(int fd)
- { 
-  sexp ctx = ctx2;
-  sexp_gc_var1(cmd); 
-  sexp_gc_preserve1(ctx,cmd);
-  cmd = sexp_list2(ctx, sexp_intern(ctx, "onopen", -1),sexp_make_integer(ctx, fd));
-  sexp_eval(ctx, cmd, NULL);
-  sexp_gc_release1(ctx);
- }
+void onopen(int fd)
+{ 
+ sexp ctx = ctx2;
+ sexp_gc_var1(cmd); 
+ sexp_gc_preserve1(ctx,cmd);
+ cmd = sexp_list2(ctx, sexp_intern(ctx, "onopen", -1),sexp_make_integer(ctx, fd));
+ sexp_eval(ctx, cmd, NULL);
+ sexp_gc_release1(ctx);
+}
 
 void onclose(int fd)
 {
-  sexp ctx = ctx2;
-  sexp_gc_var1(cmd); 
-  sexp_gc_preserve1(ctx,cmd);
-  cmd = sexp_list2(ctx, sexp_intern(ctx, "onclose", -1),sexp_make_integer(ctx, fd));
-  sexp_eval(ctx, cmd, NULL);
-  sexp_gc_release1(ctx); 
+ sexp ctx = ctx2;
+ sexp_gc_var1(cmd); 
+ sexp_gc_preserve1(ctx,cmd);
+ cmd = sexp_list2(ctx, sexp_intern(ctx, "onclose", -1),sexp_make_integer(ctx, fd));
+ sexp_eval(ctx, cmd, NULL);
+ sexp_gc_release1(ctx); 
 }
 
 void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
 {  
-  sexp ctx = ctx2;
-  sexp_gc_var1(cmd); 
-  sexp_gc_preserve1(ctx,cmd);
-  cmd = sexp_list3(ctx,sexp_c_string(ctx, msg, -1),
-         sexp_make_integer(ctx, size),sexp_make_integer(ctx, type));
-  cmd = sexp_cons(ctx,sexp_make_integer(ctx, fd), cmd);
-  cmd = sexp_cons(ctx,sexp_intern(ctx, "onmessage", -1),cmd); 
-  sexp_eval(ctx, cmd, NULL);
-  sexp_gc_release1(ctx);   
-}
-
-void init(void)
-{ 
-  sexp ctx = ctx2;
-  struct ws_events evs;
-  evs.onopen    = &onopen;
-  evs.onclose   = &onclose;
-  evs.onmessage = &onmessage;
-  ws_socket(&evs, 8080, 1); 
-  sleep(1000);
-  printf("Server Initialized!\n");  	
-}
-
-int ws_start(void){
  sexp ctx = ctx2;
-// sexp_scheme_init();
-// sexp_load_standard_env(ctx, NULL, SEXP_SEVEN);
-// sexp_load_standard_ports(ctx, NULL, stdin, stdout, stderr, 1);
+ sexp_gc_var1(cmd); 
+ sexp_gc_preserve1(ctx,cmd);
+ cmd = sexp_list3(ctx,sexp_c_string(ctx, msg, -1),
+        sexp_make_integer(ctx, size),sexp_make_integer(ctx, type));
+ cmd = sexp_cons(ctx,sexp_make_integer(ctx, fd), cmd);
+ cmd = sexp_cons(ctx,sexp_intern(ctx, "onmessage", -1),cmd); 
+ sexp_eval(ctx, cmd, NULL);
+ sexp_gc_release1(ctx);   
+}
+
+int ws_start(void)
+{
+ sexp ctx = ctx2;
+ struct ws_events evs;
+ evs.onopen    = &onopen;
+ evs.onclose   = &onclose;
+ evs.onmessage = &onmessage;
+ ws_socket(&evs, 8080, 1); 
+ usleep(500000);
  setbuf(stdout, NULL); 
- init();    
+ printf("Server Initialized!\n");  	
 }
  
 sexp sexp_ws_socket_stub (sexp ctx, sexp self, sexp_sint_t n, sexp arg0, sexp arg1, sexp arg2) {
-  sexp res;
-  if (! sexp_exact_integerp(arg1))
-    return sexp_type_exception(ctx, self, SEXP_FIXNUM, arg1);
-  if (! sexp_exact_integerp(arg2))
-    return sexp_type_exception(ctx, self, SEXP_FIXNUM, arg2);
-  res = sexp_make_integer(ctx, ws_socket(arg0, sexp_sint_value(arg1), sexp_sint_value(arg2)));
-  return res;
+ sexp res;
+ if (! sexp_exact_integerp(arg1))
+   return sexp_type_exception(ctx, self, SEXP_FIXNUM, arg1);
+ if (! sexp_exact_integerp(arg2))
+   return sexp_type_exception(ctx, self, SEXP_FIXNUM, arg2);
+ res = sexp_make_integer(ctx, ws_socket(arg0, sexp_sint_value(arg1), sexp_sint_value(arg2)));
+ return res;
 }
 
 sexp sexp_ws_sendframe_bin_stub (sexp ctx, sexp self, sexp_sint_t n, sexp arg0, sexp arg1, sexp arg2, sexp arg3) {
@@ -143,10 +135,11 @@ sexp sexp_init_library (sexp ctx, sexp self, sexp_sint_t n, sexp env, const char
     sexp_opcode_return_type(op) = sexp_make_fixnum(SEXP_FIXNUM);
   }
  sexp_gc_release3(ctx);
+
  ctx2 = ctx;  
+
  sexp_preserve_object(ctx, ctx2);
 
-  
-  return SEXP_VOID;
+ return SEXP_VOID;
 }
 

@@ -19,13 +19,17 @@
      (when (not test) . body))))
 
 (define (onclose fd)
-   (display (list 'closed fd))
-   (newline))
+    (display (list 'closed fd))
+    (newline)
+    (set! fd -1))
 
 (define (onopen fd)
     (set! gblFd fd)
     (display (list 'opened fd))   
     (newline))
+
+(define (closeconn fd)
+    ws_close_client(fd))
 
 (define (ws_send_txt msg)
     (ws_sendframe_txt gblFd msg #f)
@@ -42,4 +46,5 @@
     (let loop ((count 0))   
         (delay 1)                
         (unless (equal? gblFd -1)(ws_send_txt (number->string count)))
+        (ws_close_client gblFd)
    (loop (+ count 1))))

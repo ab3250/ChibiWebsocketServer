@@ -1,0 +1,8 @@
+#Compile library files
+
+#run for each c file
+gcc -Wall -Wextra -O2 -I /usr/local/include -I ./ -std=c99 -pedantic -fPIC base64.c -c 
+
+#Create library
+
+ar cru wslib.a *.o
